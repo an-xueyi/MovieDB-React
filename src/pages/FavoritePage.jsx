@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getFavoriteMovies } from "../api";
 import MovieGrid from "../components/MovieGrid";
-import { Box, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material"
 
 export default function FavoritePage() {
   const { sessionId, accountId } = useSelector((state) => state.auth);

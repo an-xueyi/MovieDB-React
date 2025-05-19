@@ -24,7 +24,7 @@ export default function RatedPage() {
       <Typography component="h1" variant="h3" sx={{ mb: 3 }}>
         Rated movies
       </Typography>
-      <MovieGrid movies={rated} />
+      <MovieGrid movies={rated} showOwnRating={true} />
     </Box>
   );
 }

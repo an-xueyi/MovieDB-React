@@ -15,18 +15,6 @@ export const loadMovieList = (category, page) => {
     });
 };
 
-export const loadMovieDetail = (movieId) => {
-  return fetch(`${BASE_URL}/${movieId}?api_key=${API_KEY}`)
-    .then((resp) => {
-      if (resp.ok) {
-        return resp.json();
-      }
-    })
-    .then((data) => {
-      return data;
-    });
-};
-
 export const login = async (username, password) => {
   try {
     const tokenResponse = await axios.get(
@@ -102,31 +90,73 @@ export const getRatedMovies = async (accountId, sessionId) => {
   return response.data.results;
 };
 
-export const markAsFavorite = async (
+export const toggleFavoriteStatus = async (
   accountId,
   sessionId,
   movieId,
   isFavorite
 ) => {
   try {
-    const response = await fetch(
-      `https://api.themoviedb.org/3/account/${accountId}/favorite?session_id=${sessionId}`,
+    const response = await axios.post(
+      `${BASE_URL}/account/${accountId}/favorite`,
       {
-        method: "POST",
+        media_type: "movie",
+        media_id: movieId,
+        favorite: isFavorite,
+      },
+      {
+        params: {
+          api_key: API_KEY,
+          session_id: sessionId,
+        },
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          media_type: "movie",
-          media_id: movieId,
-          favorite: isFavorite,
-        }),
       }
     );
-    const data = await response.json();
-    return data;
+    return response.data;
   } catch (error) {
-    console.error("Error marking favorite:", error);
+    console.error("Error toggling favorite:", error.response?.data || error);
+    return null;
+  }
+};
+
+export const getMovieDetail = async (movieId) => {
+  const res = await fetch(
+    `${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&language=en-US`
+  );
+  return await res.json();
+};
+
+export const getMovieRating = async (accountId, sessionId, movieId) => {
+  const res = await fetch(
+    `${BASE_URL}/movie/${movieId}/account_states?api_key=${API_KEY}&session_id=${sessionId}`
+  );
+  const data = await res.json();
+  return data.rated ? data.rated.value : null;
+};
+
+export const rateMovie = async (sessionId, movieId, value) => {
+  try {
+    const response = await axios.post(
+      `https://api.themoviedb.org/3/movie/${movieId}/rating`,
+      { value },
+      {
+        params: {
+          api_key: API_KEY,
+          session_id: sessionId,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Failed to rate movie:",
+      error.response?.data || error.message
+    );
     return null;
   }
 };
