@@ -1,8 +1,27 @@
-import React from "react";
-import { AppBar, Toolbar, Typography } from "@mui/material";
+import React, { useState } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Menu,
+  MenuItem,
+} from "@mui/material";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { logout as logoutAction } from "../store";
 
 export default function Header() {
+  const dispatch = useDispatch();
+  const { username } = useSelector((state) => state.auth);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
+  const handleLogout = () => {
+    dispatch(logoutAction());
+    handleMenuClose();
+  };
+
   return (
     <AppBar position="static">
       <Toolbar>
@@ -37,15 +56,41 @@ export default function Header() {
         >
           RATED
         </Typography>
+
         <div style={{ flexGrow: 1 }} />
-        <Typography
-          component={Link}
-          to="/login"
-          color="inherit"
-          sx={{ fontSize: "1.3rem", textDecoration: "none", ml: "auto" }}
-        >
-          Login
-        </Typography>
+
+        {username ? (
+          <>
+            <Typography
+              onClick={handleMenuOpen}
+              color="inherit"
+              sx={{
+                fontSize: "1.2rem",
+                ml: "auto",
+                cursor: "pointer",
+              }}
+            >
+              {username}
+            </Typography>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              disableRestoreFocus
+            >
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
+          </>
+        ) : (
+          <Typography
+            component={Link}
+            to="/login"
+            color="inherit"
+            sx={{ fontSize: "1.3rem", textDecoration: "none", ml: "auto" }}
+          >
+            Login
+          </Typography>
+        )}
       </Toolbar>
     </AppBar>
   );
